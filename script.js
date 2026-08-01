@@ -1,122 +1,124 @@
 class PremierLeaguePredictions {
   constructor() {
-    // 1. App State & Config
     this.teams = [
-      "AFC Bournemouth",
-      "Arsenal",
-      "Aston Villa",
-      "Brentford",
-      "Brighton & Hove Albion",
-      "Chelsea",
-      "Coventry City",
-      "Crystal Palace",
-      "Everton",
-      "Fulham",
-      "Hull City",
-      "Ipswich Town",
-      "Leeds United",
-      "Liverpool",
-      "Manchester City",
-      "Manchester United",
-      "Newcastle United",
-      "Nottingham Forest",
-      "Sunderland",
-      "Tottenham Hotspur",
+      "AFC Bournemouth", "Arsenal", "Aston Villa", "Brentford", "Brighton & Hove Albion", 
+      "Chelsea", "Coventry City", "Crystal Palace", "Everton", "Fulham", 
+      "Hull City", "Ipswich Town", "Leeds United", "Liverpool", "Manchester City", 
+      "Manchester United", "Newcastle United", "Nottingham Forest", "Sunderland", "Tottenham Hotspur"
     ];
-    this.scriptURL =
-      "https://script.google.com/macros/s/AKfycbw2k8sOZgYWQhaz1EbeBc-YIuAUse53cKR-dn4JwnjEYcKQEG1i0KVbsMQc5bDcDz7PUg/exec";
-      
-    // 2. DOM Elements
-    this.list = document.getElementById("sortableList");
-    this.overSelect = document.getElementById("overAchiever");
-    this.underSelect = document.getElementById("underAchiever");
-    this.submitBtn = document.querySelector("button");
-    this.playerNameInput = document.getElementById("playerName");
-    this.topScorerInput = document.getElementById("topScorer");
+    this.scriptURL = 'https://script.google.com/macros/s/AKfycbw2k8sOZgYWQhaz1EbeBc-YIuAUse53cKR-dn4JwnjEYcKQEG1i0KVbsMQc5bDcDz7PUg/exec';
 
-    // 3. Boot the App
+    this.list = document.getElementById('sortableList');
+    this.overSelect = document.getElementById('overAchiever');
+    this.underSelect = document.getElementById('underAchiever');
+    this.submitBtn = document.querySelector('button');
+    this.playerNameInput = document.getElementById('playerName');
+    this.topScorerInput = document.getElementById('topScorer');
+    this.toastElement = document.getElementById('toast');
+
     this.init();
   }
 
   init() {
     this.populateDropdowns();
     this.renderList();
+    this.initializeSortable();
     this.attachEventListeners();
   }
 
   populateDropdowns() {
-    this.teams.forEach((team) => {
+    this.teams.forEach(team => {
       this.overSelect.add(new Option(team, team));
       this.underSelect.add(new Option(team, team));
     });
   }
 
   renderList() {
-    this.list.innerHTML = "";
+    this.list.innerHTML = '';
+    
+    const gripIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>`;
+
     this.teams.forEach((team, index) => {
-      const li = document.createElement("li");
-      li.className = "team-item";
-      li.draggable = true;
-      li.innerHTML = `<span class="position">${index + 1}</span> <span>${team}</span>`;
-
-      // Drag events for individual items
-      li.addEventListener("dragstart", () => li.classList.add("dragging"));
-      li.addEventListener("dragend", () => {
-        li.classList.remove("dragging");
-        this.updatePositions();
-      });
-
+      const li = document.createElement('li');
+      li.className = 'team-item';
+      
+      li.innerHTML = `
+        <span class="position"></span> 
+        <span class="team-name">${team}</span>
+        <div class="grip-handle">${gripIcon}</div>
+      `;
+      
       this.list.appendChild(li);
+    });
+
+    // Run once on load to set initial numbers and colors
+    this.updatePositions();
+  }
+
+  initializeSortable() {
+    new Sortable(this.list, {
+      handle: '.grip-handle',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      dragClass: 'sortable-drag',
+      onEnd: () => {
+        this.updatePositions();
+      }
     });
   }
 
   attachEventListeners() {
-    // Handle the sorting logic over the list container
-    this.list.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      const afterElement = this.getDragAfterElement(this.list, e.clientY);
-      const draggable = document.querySelector(".dragging");
-      if (afterElement == null) {
-        this.list.appendChild(draggable);
-      } else {
-        this.list.insertBefore(draggable, afterElement);
-      }
-    });
-
-    // Attach click listener to the submit button
     if (this.submitBtn) {
-      this.submitBtn.addEventListener("click", (e) => {
-        e.preventDefault(); // Prevents default form submission if wrapped in a form later
+      this.submitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         this.submitPredictions();
       });
     }
   }
 
-  getDragAfterElement(container, y) {
-    const draggableElements = [
-      ...container.querySelectorAll(".team-item:not(.dragging)"),
-    ];
-
-    return draggableElements.reduce(
-      (closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-
-        if (offset < 0 && offset > closest.offset) {
-          return { offset: offset, element: child };
-        } else {
-          return closest;
-        }
-      },
-      { offset: Number.NEGATIVE_INFINITY },
-    ).element;
+  updatePositions() {
+    const items = this.list.querySelectorAll('.team-item');
+    items.forEach((item, index) => {
+      const posSpan = item.querySelector('.position');
+      const pos = index + 1;
+      
+      posSpan.innerText = pos;
+      
+      // Reset classes
+      posSpan.className = 'position';
+      
+      // Apply color coding
+      if (pos === 1) {
+        posSpan.classList.add('pos-champ');
+      } else if (pos >= 2 && pos <= 4) {
+        posSpan.classList.add('pos-cl');
+      } else if (pos === 5) {
+        posSpan.classList.add('pos-el');
+      } else if (pos === 6) {
+        posSpan.classList.add('pos-ecl');
+      } else if (pos >= 18 && pos <= 20) {
+        posSpan.classList.add('pos-rel');
+      }
+    });
   }
 
-  updatePositions() {
-    const items = this.list.querySelectorAll(".team-item");
-    items.forEach((item, index) => {
-      item.querySelector(".position").innerText = index + 1;
-    });
+  showToast(message, isError = false) {
+    if (!this.toastElement) return;
+    
+    this.toastElement.innerText = message;
+    
+    if (isError) {
+      this.toastElement.classList.add('error');
+    } else {
+      this.toastElement.classList.remove('error');
+    }
+    
+    this.toastElement.classList.add('show');
+    
+    // Hide after 3.5 seconds
+    setTimeout(() => {
+      this.toastElement.classList.remove('show');
+    }, 3500);
   }
 
   async submitPredictions() {
@@ -124,57 +126,48 @@ class PremierLeaguePredictions {
     const scorer = this.topScorerInput.value.trim();
     const overAchiever = this.overSelect.value;
     const underAchiever = this.underSelect.value;
-
+    
     if (!name || !scorer) {
-      alert("Please fill in your name and Golden Boot prediction!");
+      this.showToast("⚠️ Please fill in your name and Golden Boot!", true);
       return;
     }
 
-    // Extract the final 1-20 list from the DOM
-    const teamItems = this.list.querySelectorAll(
-      ".team-item span:nth-child(2)",
-    );
-    const tablePredictions = Array.from(teamItems).map(
-      (item) => item.innerText,
-    );
+    const teamItems = this.list.querySelectorAll('.team-name');
+    const tablePredictions = Array.from(teamItems).map(item => item.innerText);
 
     const payload = {
       name: name,
       scorer: scorer,
       overAchiever: overAchiever,
       underAchiever: underAchiever,
-      table: tablePredictions,
+      table: tablePredictions
     };
 
-    // Update UI to show saving state
-    this.submitBtn.innerText = "Saving...";
+    this.submitBtn.innerText = 'Saving...';
     this.submitBtn.disabled = true;
 
     try {
       await fetch(this.scriptURL, {
-        method: "POST",
-        mode: "no-cors", // Bypasses Google Apps Script CORS redirects
+        method: 'POST',
+        mode: 'no-cors',
         headers: {
-          "Content-Type": "text/plain;charset=utf-8",
+          'Content-Type': 'text/plain;charset=utf-8',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       });
-
-      alert(`Predictions for ${name} saved successfully!`);
+      
+      this.showToast(`✅ Predictions for ${name} saved successfully!`);
+      
     } catch (error) {
-      console.error("Error:", error);
-      alert(
-        "Failed to save to Google Sheets. Please check your internet connection or URL.",
-      );
+      console.error('Error:', error);
+      this.showToast('❌ Failed to save. Check your connection.', true);
     } finally {
-      // Reset UI state
-      this.submitBtn.innerText = "Submit Predictions";
+      this.submitBtn.innerText = 'Submit Predictions';
       this.submitBtn.disabled = false;
     }
   }
 }
 
-// Instantiate the class once the DOM is fully loaded
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   new PremierLeaguePredictions();
 });
