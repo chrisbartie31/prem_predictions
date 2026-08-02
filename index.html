@@ -7,22 +7,29 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>26/27 Predictions</h1>
-        <p>Prem Predictions</p>
-      </div>
+  <div class="container">
+    <div class="header">
+      <h1>26/27 Predictions</h1>
+      <p>Prem Predictions</p>
+    </div>
 
+    <!-- NEW NAVIGATION TABS -->
+    <div class="tab-nav">
+      <button class="tab-btn active" id="btnMyPicks">My Picks</button>
+      <button class="tab-btn" id="btnAllEntries">All Entries</button>
+    </div>
+    
+    <!-- TAB 1: MY PICKS -->
+    <div id="myPicksTab" class="tab-content active">
       <div class="card">
         <h2>👤 Player Info</h2>
         <div class="form-group">
           <label for="playerName">Your Name</label>
-          <input
-            type="text"
-            id="playerName"
-            placeholder="Enter your name"
-            required
-          />
+          <input type="text" id="playerName" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+          <label for="playerEmail">Your Email</label>
+          <input type="email" id="playerEmail" placeholder="Enter your email to receive your picks" required>
         </div>
       </div>
 
@@ -30,14 +37,9 @@
         <h2>🎯 Bonus Predictions</h2>
         <div class="form-group">
           <label for="topScorer">Golden Boot (Top Scorer)</label>
-          <input
-            type="text"
-            id="topScorer"
-            placeholder="e.g. Erling Haaland"
-            required
-          />
+          <input type="text" id="topScorer" placeholder="e.g. Erling Haaland" required>
         </div>
-
+        
         <div class="form-group">
           <label for="overAchiever">Biggest Overachiever</label>
           <select id="overAchiever"></select>
@@ -51,14 +53,7 @@
 
       <div class="card">
         <h2>📊 Final Standings</h2>
-        <p
-          style="
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-          "
-        >
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0; margin-bottom: 1.5rem;">
           Drag and drop the teams to set your final 1-20 table.
         </p>
         <ul class="team-list" id="sortableList">
@@ -66,13 +61,51 @@
         </ul>
       </div>
 
-      <button>Submit Predictions</button>
+      <button id="submitBtn">Submit Predictions</button>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <!-- TAB 2: ALL ENTRIES -->
+    <div id="allEntriesTab" class="tab-content">
+      <div class="card">
+        <h2>📜 Submitted Entries</h2>
+        <p id="lockStatus" style="color: var(--pl-neon); font-weight: bold; margin-bottom: 1rem;"></p>
+        <div id="entriesList" class="entries-list">
+          <!-- Populated by JS -->
+          <p>Loading entries...</p>
+        </div>
+      </div>
+      
+      <!-- Detailed View for a single entry -->
+      <div id="entryDetail" class="card" style="display: none;">
+        <button id="backToListBtn" class="secondary-btn">← Back to List</button>
+        <h2 id="detailName" style="margin-top: 1rem;">Player Name</h2>
+        
+        <div class="detail-grid">
+          <div class="detail-box">
+            <span>Golden Boot</span>
+            <strong id="detailScorer"></strong>
+          </div>
+          <div class="detail-box">
+            <span>Overachiever</span>
+            <strong id="detailOver"></strong>
+          </div>
+          <div class="detail-box">
+            <span>Underachiever</span>
+            <strong id="detailUnder"></strong>
+          </div>
+        </div>
 
-    <script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <script src="script.js"></script>
-  </body>
+        <h3 style="margin-top: 1.5rem; color: var(--text-muted);">Predicted Table</h3>
+        <ul class="team-list" id="detailTable">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="script.js"></script>
+</body>
 </html>
