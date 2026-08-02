@@ -68,6 +68,15 @@ class PremierLeaguePredictions {
     });
   }
 
+  getPositionClass(index) {
+    const pos = index + 1;
+    if (pos >= 1 && pos <= 4) return "pos-cl";       // Champions League
+    if (pos === 5) return "pos-el";                  // Europa League
+    if (pos === 6) return "pos-uecl";                // Conference League Green
+    if (pos >= 18 && pos <= 20) return "pos-rel";    // Relegation
+    return ""; // Default (no color) for 7-17
+  }
+
   showToast(message, isError = false) {
     this.toastElement.innerText = message;
 
@@ -90,10 +99,11 @@ class PremierLeaguePredictions {
     const gripIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>`;
 
     this.teams.forEach((team, index) => {
+      const posClass = this.getPositionClass(index);
       const li = document.createElement("li");
       li.className = "team-item";
       li.innerHTML = `
-        <span class="position">${index + 1}</span> 
+        <span class="position ${posClass}">${index + 1}</span> 
         <span class="team-name">${team}</span>
         <div class="grip-handle">${gripIcon}</div>
       `;
@@ -116,7 +126,15 @@ class PremierLeaguePredictions {
   updatePositions() {
     const items = this.list.querySelectorAll(".team-item");
     items.forEach((item, index) => {
-      item.querySelector(".position").innerText = index + 1;
+      const posSpan = item.querySelector(".position");
+      posSpan.innerText = index + 1;
+      
+      // Reset the classes and apply the correct color for the new position
+      posSpan.className = "position";
+      const posClass = this.getPositionClass(index);
+      if (posClass) {
+        posSpan.classList.add(posClass);
+      }
     });
   }
 
@@ -232,11 +250,14 @@ class PremierLeaguePredictions {
     const tableUl = document.getElementById("detailTable");
     tableUl.innerHTML = "";
     entry.table.forEach((team, i) => {
+      
+      const posClass = this.getPositionClass(i); // <-- ADD THIS LINE
+
       const li = document.createElement("li");
       li.className = "team-item";
       li.style.cursor = "default"; // Disable drag styling in detail view
       li.innerHTML = `
-        <span class="position">${i + 1}</span> 
+        <span class="position ${posClass}">${i + 1}</span> <!-- ADD ${posClass} HERE -->
         <span class="team-name">${team}</span>
       `;
       tableUl.appendChild(li);

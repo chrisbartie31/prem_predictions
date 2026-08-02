@@ -399,3 +399,20 @@ button:hover {
   color: var(--pl-neon);
   font-size: 0.9rem;
 }
+
+/* --- POSITION COLOR CODING --- */
+.position.pos-cl {
+  color: #006aff;
+}
+
+.position.pos-el {
+  color: #ff8c00;
+}
+
+.position.pos-uecl {
+  color: #00ca4a;
+}
+
+.position.pos-rel {
+  color: #f90e35;
+}
